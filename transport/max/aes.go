@@ -1,0 +1,61 @@
+package max
+
+import (
+	"crypto/aes"
+	"crypto/rand"
+	"crypto/cipher"
+	"crypto/sha256"
+)
+
+func Encrypt(data, password []byte) ([]byte, error) {
+	key := deriveKey(password)
+
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = rand.Read(nonce); err != nil {
+		return nil, err
+	}
+
+	return gcm.Seal(nonce, nonce, data, nil), nil
+}
+
+func Decrypt(data, password []byte) ([]byte, error) {
+	key := deriveKey(password)
+
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce, ciphertext := data[:gcm.NonceSize()], data[gcm.NonceSize():]
+
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return plaintext, nil
+}
+
+func deriveKey(password []byte) []byte {
+	buf := make([]byte, 32) // Will use AES-256
+
+	h := sha256.Sum224(password)
+	copy(buf, h[:]) // Fill the rest of the hash with zeros (SHA-224 leads to a 28 byte long hash)
+
+	return buf
+}

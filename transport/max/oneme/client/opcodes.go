@@ -1,0 +1,14 @@
+package client
+
+const (
+	OP_QR_AUTH_START  = 288
+	OP_QR_AUTH_POLL   = 289
+	OP_QR_AUTH_FINISH = 291
+	OP_CHAT_SYNC      = 19
+	OP_NEW_CONVO	  = 76
+	OP_CALL_TOKEN	  = 158
+	OP_CLIENT_HELLO   = 6
+	OP_SEND_MESSAGE   = 64
+	OP_RECV_MESSAGE   = 128
+	OP_PING			  = 1
+)
